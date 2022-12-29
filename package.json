@@ -1,13 +1,32 @@
 {
-  "name": "starter-micro-api",
+  "name": "dolar-bot",
   "version": "1.0.0",
-  "description": "Cyclic.sh micro api starter",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon ./index.js",
+    "start": "node ./index.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.1"
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "none"
+  },
   "dependencies": {
+    "@slack/bolt": "^3.12.2",
+    "@slack/web-api": "^6.8.0",
+    "axios": "^1.2.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "firebase-admin": "^11.4.1",
+    "slack": "^11.0.2"
   }
 }
