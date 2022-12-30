@@ -1,36 +1,36 @@
-const config = require("./config");
-const { WebClient } = require("@slack/web-api");
-const { default: axios } = require("axios");
-const { initializeApp, cert } = require("firebase-admin/app");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const express = require('express');
+const { WebClient } = require('@slack/web-api');
+const { default: axios } = require('axios');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getCurrentDate } = require('./utils');
+const config = require('./config');
+
+// APP
+const PORT = config.PORT;
+const app = express();
 
 initializeApp({
   credential: cert({
     projectId: config.FIREBASE_PROJECT_ID,
     clientEmail: config.FIREBASE_CLIENT_EMAIL,
-    privateKey: config.FIREBASE_PRIVATE_KEY,
-  }),
+    privateKey: config.FIREBASE_PRIVATE_KEY
+  })
 });
-
 const db = getFirestore();
-
 const web = new WebClient(config.SLACK_BOT_TOKEN);
 
-const oneMin = 1000 * 60;
-const cantMin = 1;
-const delay = oneMin * cantMin;
-
-setInterval(async () => {
-  console.log("checking dolar price...");
+// ROUTES
+app.post('/bot', async function (req, res) {
   const result = await axios.get(config.DOLARSI_URL);
   const values = result.data;
 
-  const blue = values.find(value => value.casa.nombre === "Blue");
-  const actualPrice = parseInt(blue.casa.venta.split(",")[0]);
+  const blue = values.find((value) => value.casa.nombre === 'Blue');
+  const actualPrice = parseInt(blue.casa.venta.split(',')[0]);
 
   const snapshot = await db
-    .collection("historyPrice")
-    .orderBy("createdAt", "desc")
+    .collection('historyPrice')
+    .orderBy('createdAt', 'desc')
     .get();
 
   if (snapshot.docs.length > 0) {
@@ -38,31 +38,38 @@ setInterval(async () => {
     const oldPrice = parseInt(lastValue.value);
 
     console.log(`\n
-      Actual price: $ ${actualPrice}
-      Old price: $ ${oldPrice}
-      Delay: ${cantMin} minutes
+      Date: ${getCurrentDate()}
+      -------------------
+      Actual actual: $ ${actualPrice}
+      Previous price: $ ${oldPrice}
     `);
 
     if (actualPrice > oldPrice) {
-      await db.collection("historyPrice").add({
+      await db.collection('historyPrice').add({
         value: actualPrice,
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp()
       });
 
       await web.chat.postMessage({
         text: `💸 *$ ${actualPrice}*`,
-        channel: config.SLACK_CHANNEL_ID,
+        channel: config.SLACK_CHANNEL_ID
       });
     }
   } else {
-    await db.collection("historyPrice").add({
+    await db.collection('historyPrice').add({
       value: actualPrice,
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp()
     });
 
     await web.chat.postMessage({
       text: `💸 *$ ${actualPrice}*`,
-      channel: config.SLACK_CHANNEL_ID,
+      channel: config.SLACK_CHANNEL_ID
     });
   }
-}, delay);
+
+  res.send('OK');
+});
+
+app.listen(PORT, () => {
+  console.log(`Bot listen on port: ${config.PORT}`);
+});
