@@ -45,12 +45,12 @@ app.post('/bot', async function (req, res) {
         createdAt: FieldValue.serverTimestamp()
       });
 
-      const changePercentage = getPercentage(actualPrice, oldPrice);
+      const changePercentage = getPercentage(oldPrice, actualPrice);
 
       const text = `
       > :dollar: Dollar Blue 
-      > $ *${actualPrice}*  -  ${changePercentage}
-      `;
+      > $ *${actualPrice}*  |  ${changePercentage}
+      >`;
 
       await web.chat.postMessage({
         text: text,
