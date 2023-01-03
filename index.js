@@ -3,7 +3,7 @@ const { WebClient } = require('@slack/web-api');
 const { default: axios } = require('axios');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
-const { getCurrentDate } = require('./utils');
+const { getPercentage } = require('./utils');
 const config = require('./config');
 
 // APP
@@ -18,13 +18,13 @@ initializeApp({
   })
 });
 const db = getFirestore();
+
 const web = new WebClient(config.SLACK_BOT_TOKEN);
 
 // ROUTES
 app.post('/bot', async function (req, res) {
   const result = await axios.get(config.DOLARSI_URL);
   const values = result.data;
-
   const blue = values.find((value) => value.casa.nombre === 'Blue');
   const actualPrice = parseInt(blue.casa.venta.split(',')[0]);
 
@@ -34,24 +34,26 @@ app.post('/bot', async function (req, res) {
     .get();
 
   if (snapshot.docs.length > 0) {
+    console.log('checking price...');
+
     const lastValue = snapshot.docs[0].data();
     const oldPrice = parseInt(lastValue.value);
 
-    console.log(`\n
-      Date: ${getCurrentDate()}
-      -------------------
-      Actual actual: $ ${actualPrice}
-      Previous price: $ ${oldPrice}
-    `);
-
-    if (actualPrice > oldPrice) {
+    if (actualPrice != oldPrice) {
       await db.collection('historyPrice').add({
         value: actualPrice,
         createdAt: FieldValue.serverTimestamp()
       });
 
+      const changePercentage = getPercentage(actualPrice, oldPrice);
+
+      const text = `
+      > :dollar: Dollar Blue 
+      > $ *${actualPrice}*  -  ${changePercentage}
+      `;
+
       await web.chat.postMessage({
-        text: `💸 *$ ${actualPrice}*`,
+        text: text,
         channel: config.SLACK_CHANNEL_ID
       });
     }
