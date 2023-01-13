@@ -49,9 +49,9 @@ app.post('/bot', async function (req, res) {
 
       const text = `
       > :money_with_wings: Dolar Blue :money_with_wings:
-      > Venta ........... $ *${actualSellPrice}*
-      > Compra ....... $ *${actualBuyPrice}*
-      > Variación ..... ${arrowVariation} *${variation}*
+        Venta ........... $ *${actualSellPrice}*
+        Compra ....... $ *${actualBuyPrice}*
+        Variación ..... ${arrowVariation} *${variation}*
       `;
 
       await web.chat.postMessage({
