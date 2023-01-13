@@ -3,7 +3,6 @@ const { WebClient } = require('@slack/web-api');
 const { default: axios } = require('axios');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
-const { getPercentage } = require('./utils');
 const config = require('./config');
 
 // APP
@@ -25,8 +24,10 @@ const web = new WebClient(config.SLACK_BOT_TOKEN);
 app.post('/bot', async function (req, res) {
   const result = await axios.get(config.DOLAR_URL);
 
-  const values = result.data;
-  const actualPrice = parseInt(values.blue.value_sell);
+  const actualSellPrice = parseInt(result.data.venta.split(',')[0]);
+  const actualBuyPrice = parseInt(result.data.compra.split(',')[0]);
+  const variation = result.data.variacion;
+  const classVariation = result.data['class-variacion'];
 
   const snapshot = await db
     .collection('historyPrice')
@@ -37,15 +38,20 @@ app.post('/bot', async function (req, res) {
     const lastValue = snapshot.docs[0].data();
     const oldPrice = parseInt(lastValue.value);
 
-    if (actualPrice != oldPrice) {
+    if (actualSellPrice != oldPrice) {
       await db.collection('historyPrice').add({
-        value: actualPrice,
+        value: actualSellPrice,
         createdAt: FieldValue.serverTimestamp()
       });
 
-      const changePercentage = getPercentage(oldPrice, actualPrice);
+      const arrowVariation =
+        classVariation === 'up' ? ':face_with_rolling_eyes:' : ':pensive:';
 
-      const text = `:money_with_wings: $ *${actualPrice}*  --  ${changePercentage}`;
+      const text = `:money_with_wings: Dolar Blue :money_with_wings:
+      > Venta ........... $ *${actualSellPrice}*
+      > Compra ....... $ *${actualBuyPrice}*
+      > Variación ..... ${arrowVariation} *${variation}*
+      `;
 
       await web.chat.postMessage({
         text: text,
@@ -54,13 +60,8 @@ app.post('/bot', async function (req, res) {
     }
   } else {
     await db.collection('historyPrice').add({
-      value: actualPrice,
+      value: actualSellPrice,
       createdAt: FieldValue.serverTimestamp()
-    });
-
-    await web.chat.postMessage({
-      text: `💸 *$ ${actualPrice}*`,
-      channel: config.SLACK_CHANNEL_ID
     });
   }
 
