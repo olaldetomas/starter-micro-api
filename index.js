@@ -47,7 +47,7 @@ app.post('/bot', async function (req, res) {
       const arrowVariation =
         classVariation === 'up' ? ':face_with_rolling_eyes:' : ':pensive:';
 
-      const text = `> :money_with_wings: Dolar Blue :money_with_wings:\n > Venta ........... $ *${actualSellPrice}*\n > Compra ....... $ *${actualBuyPrice}*\n > Variación ..... ${arrowVariation} *${variation}*`;
+      const text = `>:money_with_wings: Dolar Blue :money_with_wings:\n>Venta ........... $ *${actualSellPrice}*\n>Compra ....... $ *${actualBuyPrice}*\n>Variación ..... ${arrowVariation} *${variation}*`;
 
       await web.chat.postMessage({
         text: text,
