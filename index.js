@@ -23,10 +23,10 @@ const web = new WebClient(config.SLACK_BOT_TOKEN);
 
 // ROUTES
 app.post('/bot', async function (req, res) {
-  const result = await axios.get(config.DOLARSI_URL);
+  const result = await axios.get(config.DOLAR_URL);
+
   const values = result.data;
-  const blue = values.find((value) => value.casa.nombre === 'Blue');
-  const actualPrice = parseInt(blue.casa.venta.split(',')[0]);
+  const actualPrice = parseInt(values.blue.value_sell);
 
   const snapshot = await db
     .collection('historyPrice')
@@ -34,8 +34,6 @@ app.post('/bot', async function (req, res) {
     .get();
 
   if (snapshot.docs.length > 0) {
-    console.log('checking price...');
-
     const lastValue = snapshot.docs[0].data();
     const oldPrice = parseInt(lastValue.value);
 
