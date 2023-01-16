@@ -27,7 +27,6 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "firebase-admin": "^11.4.1",
-    "jsdom": "^21.0.0",
     "slack": "^11.0.2"
   }
 }
