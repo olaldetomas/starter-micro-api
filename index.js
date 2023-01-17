@@ -46,7 +46,7 @@ app.post('/bot', async function (req, res) {
         createdAt: FieldValue.serverTimestamp()
       });
 
-      const text = `>:money_with_wings:  Dolar Blue  :money_with_wings:\n>Venta ........... $ *${actualSellPrice}*\n>Compra ....... $ ${actualBuyPrice}`;
+      const text = `>:money_with_wings:  Dollar Blue  :money_with_wings:\n>_Venta_ ........... $ *${actualSellPrice}*\n>_Compra_ ....... $ ${actualBuyPrice}`;
 
       await web.chat.postMessage({
         text: text,
