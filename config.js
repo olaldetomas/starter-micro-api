@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const config = {
   SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
-  SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET,
   SLACK_CHANNEL_ID: process.env.SLACK_CHANNEL_ID,
   DOLAR_URL: process.env.DOLAR_URL,
   PORT: process.env.PORT || 3000,
